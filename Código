@@ -1,12 +1,12 @@
 function colherInformacoes() {
   const planilha = SpreadsheetApp.getActiveSpreadsheet();
-  const abaDados = planilha.getSheetByName("Form Respostas");
+  const abaDados = planilha.getSheetByName(" "); // Nome da aba que você coletará os dados
 
   const ultimaLinha = abaDados.getLastRow();
   const dados = abaDados.getRange(ultimaLinha, 1, 1, abaDados.getLastColumn()).getValues()[0];
 
-  const pastaTeste = DriveApp.getFolderById("1ljGrnn-fjiMTX6rAxe9h6BOjs0O721Uo");
-  const modeloDoc = DriveApp.getFileById('1YLsy3EsejVlTvItNPdhNMK-cWYEszKeJ7nfzPvYZBkw');
+  const pastaTeste = DriveApp.getFolderById(" "); // Pasta onde serão armazenados os documentos que foram preenchidos automaticamente
+  const modeloDoc = DriveApp.getFileById(' '); // Modelo de documento que será copiado, preenchido e armazenado com as respostas do form
 
   const dadosPreenchimento = extrairDados(dados);
 
@@ -85,7 +85,7 @@ const formatarData = dataString => {
     return "Data inválida";
   }
 };
-
+ // Formatação da data
 function preencherDocumento(docId, dados) {
   const doc = DocumentApp.openById(docId);
   const body = doc.getBody();
