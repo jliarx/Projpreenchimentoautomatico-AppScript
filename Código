@@ -1,0 +1,98 @@
+function colherInformacoes() {
+  const planilha = SpreadsheetApp.getActiveSpreadsheet();
+  const abaDados = planilha.getSheetByName("Form Respostas");
+
+  const ultimaLinha = abaDados.getLastRow();
+  const dados = abaDados.getRange(ultimaLinha, 1, 1, abaDados.getLastColumn()).getValues()[0];
+
+  const pastaTeste = DriveApp.getFolderById("1ljGrnn-fjiMTX6rAxe9h6BOjs0O721Uo");
+  const modeloDoc = DriveApp.getFileById('1YLsy3EsejVlTvItNPdhNMK-cWYEszKeJ7nfzPvYZBkw');
+
+  const dadosPreenchimento = extrairDados(dados);
+
+  const novoDoc = modeloDoc.makeCopy(dadosPreenchimento.NOME_COMPLETO, pastaTeste);
+
+  preencherDocumento(novoDoc.getId(), dadosPreenchimento);
+}
+
+function extrairDados(dados) {
+  // Usamos desestruturação de array para extrair os dados de forma mais clara
+  const [
+    , empresa, data, nomeCompleto, dataDeNascimento, cidadeDeNascimento, estadoCivil, enderecoMora, numero1, complemento1, bairroMora, cidadeMora, cepMora, ufMora, telefone, email, escolaridade, nomeDaMae, nomeDoPai,
+    nomeCompletoEmergencia, parentesco, telefoneEmergencia, enderecoEmergencia, numero2, complemento2, bairroEmergencia, cidadeEmargencia, cepEmergencia, ufEmergencia,
+    numeroCNH, categoria, dataDeExpedicaoDaCNH, validade, orgaoExpCHN, cpf, registroGeralNumero, dataDeExpRG, orgaoExpedidorUf,
+    razaoSocial, cnpj, enderecoEmpresa,
+    dataDeInicio, valorDaPrestacaoDeServicoMensal,
+    banco, agencia, conta, tipo, pix
+  ] = dados;
+
+  return {
+    EMPRESA: empresa,
+    DATA: formatarData(data),
+    NOME_COMPLETO: nomeCompleto,
+    DATA_DE_NASCIMENTO: dataDeNascimento,
+    CIDADE_DE_NASCIMENTO_UF: cidadeDeNascimento,
+    ESTADO_CIVIL: estadoCivil,
+    ENDERECO_MORA: enderecoMora,
+    N1_MORA:numero1,
+    COMPLEMENTO_MORA: complemento1,
+    BAIRRO_MORA:bairroMora,
+    CIDADE_MORA:cidadeMora,
+    CEP_MORA:cepMora,
+    UF_MORA: ufMora,
+    TELEFONE_PESSOAL: telefone, 
+    EMAIL: email,
+    ESCOLARIDADE: escolaridade,
+    NOME_MAE:nomeDaMae,
+    NOME_PAI:nomeDoPai,
+    NOME_COMPLETO_EMG: nomeCompletoEmergencia, 
+    PARENTESCO: parentesco, 
+    TELEFONE_EMG: telefoneEmergencia, 
+    ENDERECO_EMG: enderecoEmergencia, 
+    N2_EMG: numero2, 
+    COMPL_EMG: complemento2, 
+    BAIRRO_EMG: bairroEmergencia,
+    CIDADE_EMG: cidadeEmargencia, 
+    CEP_EMG: cepEmergencia, 
+    UF_EMG: ufEmergencia, 
+    CNH: numeroCNH, 
+    CATEGORIA: categoria, 
+    DATA_DE_EXPEDICAO_CNH: formatarData(dataDeExpedicaoDaCNH), 
+    VALIDADE: formatarData(validade), 
+    ORGAO_CNH: orgaoExpCHN, 
+    CFP: cpf, 
+    RG: registroGeralNumero, 
+    DATA_DE_EXPEDICAO_RG: formatarData(dataDeExpRG), 
+    ORGAO_RG_UF: orgaoExpedidorUf, 
+    RAZAO_SOCIAL: razaoSocial, 
+    CNPJ: cnpj, 
+    ENDERECO_EMPRESA: enderecoEmpresa, 
+    DATA_DE_INICIO: formatarData(dataDeInicio), 
+    SALARIO: valorDaPrestacaoDeServicoMensal, 
+    BANCO: banco, 
+    AGENCIA: agencia, 
+    CONTA: conta, 
+    TIPO: tipo,
+    PIX: pix
+  }
+}
+const formatarData = dataString => {
+  try {
+    const data = new Date(dataString);
+    return Utilities.formatDate(data, "GMT-3", "dd/MM/yyyy");
+  } catch (error) {
+    console.error("Erro ao formatar data:", error);
+    return "Data inválida";
+  }
+};
+
+function preencherDocumento(docId, dados) {
+  const doc = DocumentApp.openById(docId);
+  const body = doc.getBody();
+
+  Object.entries(dados).forEach(([chave, valor]) => {
+    body.replaceText(`{${chave}}`, valor);
+  });
+
+  doc.saveAndClose();
+}
